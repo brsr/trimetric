@@ -191,7 +191,7 @@ of control points to the azimuths from each control point to the given point.
   $\mathbf p_c$ is the point projected by the CTP and $\mathbf p_m$ is the
   point projected by the MTP. Green solid lines indicate the control
   triangles, the circles are blue dots, and the perpendiculars are red dashes.}
-  \label{fig:chamberlin}
+  \label{fig:chamberlin}%FIXME wrong figure
 \end{figure}
 
 Construction of the MTP starts like the CTP. If one draws a line through the two
@@ -211,7 +211,7 @@ The equations of each perpendicular line, taken together, create a linear
 system. It is an overdetermined system of 3 equations in 2 variables, but since
 all 3 lines meet at the same point, it has a solution. Ultimately this system
 can be solved for $\mathbf p_m$ to define a forward map projection as follows.
-\begin{equation}\label{eq:forward}% FIXME sign error?
+\begin{equation}\label{eq:forward}
 \mathbf p_m =
 \mathbf M \begin{bmatrix*} r^2_1 & r^2_2 & r^2_3 \end{bmatrix*}^\top,
 \end{equation}
@@ -250,11 +250,11 @@ Given $\mathbf p_m$, start to invert the projection as so:
 \begin{bmatrix*} k_1 & k_2 & k_3
 \end{bmatrix*}^\top = \mathbf M^+ \mathbf p_m \,,
 \end{equation}
-\begin{equation}\label{eq:inversem}% FIXME sign error?
+\begin{equation}\label{eq:inversem}
 \mathbf M^+ = \frac{2}{3}
-\begin{bmatrix*}[r] 2x_1 - x_2 - x_3 & 2y_1 - y_2 - y_3 \\
--x_1 + 2x_2 - x_3 & -y_1 + 2y_2 - y_3 \\
--x_1 - x_2 + 2x_3 & -y_1 - y_2 + 2y_3
+\begin{bmatrix*}[r] -2x_1 + x_2 + x_3 & -2y_1 + y_2 + y_3 \\
+x_1 - 2x_2 + x_3 & y_1 - 2y_2 + y_3 \\
+x_1 + x_2 - 2x_3 & y_1 + y_2 - 2y_3
 \end{bmatrix*} = \frac{2}{3}
 \begin{bmatrix*}[r] -2 & 1 & 1 \\
 1 & -2 & 1 \\
@@ -538,19 +538,19 @@ continued into the overlap region, $s$ reaches a negative minimum value.
 \begin{tabular}{ l r r}
   Projection & Time (s) & Time minus overhead (s)\\
 \hline
-  CTP & 12.7 & 4.2 \\
-  MTP & 10.8 & 2.3 \\
-  No-op & 8.5 & 0.0
+  CTP & 12.3 & 4.0 \\%FIXME try this with all the other ctrl triangles too
+  MTP & 10.6 & 2.3 \\
+  No-op & 8.3 & 0.0
 \end{tabular}
 \caption{Computation time comparison.}
 \label{table:time}
 \end{table}
 
-To determine computation time, a data set of 6,480,000 evenly spaced points
-across the entire sphere was created. This includes points in the overlap
-region, but different points do not take a different amount of time to
-calculate. Neither does the control triangle itself affect computation time.
-Table \ref{table:time} shows the time to project that data set using the
+To determine computation time, we created a data set of 6,485,401 points evenly
+spaced in latitude and longitude across the entire sphere. This includes points
+in the overlap region, but different points do not take a different amount of
+time to calculate. Neither does the control triangle itself affect computation
+time. Table \ref{table:time} shows the time to project that data set using the
 \texttt{proj} program in PROJ, as determined by the standard Unix command line
 program \texttt{time}. The real-world calculation time is used rather than the
 system or user time. These projections were run on the author's MacBook laptop.
@@ -560,7 +560,7 @@ can only increase the time. Thus, the programs were run 10 times and the lowest
 number was used. A certain amount of overhead comes from loading the program
 into memory and reading the data from disk: fortunately, PROJ contains a no-op
 projection that returns the input unchanged, and we can use that to measure the
-overhead. Removing the overhead, the MTP is faster than the CTP by about 45\%.
+overhead.
 
 \section{Conclusion}
 We have demonstrated a new compromise map projection, the matrix trimetric
@@ -574,14 +574,11 @@ The forward formula for the MTP is given in Equations
 \ref{eq:forward}--\ref{eq:forwardt}. Equation \ref{eq:forward} is a simple
 product of a matrix and a vector. The vector depends on the point being
 transformed. The matrix calculated by the latter two equations depends only on
-the control points, so can be calculated once and reused. The forward formula
-does not have the special cases of the CTP, making it more efficient to
-calculate and easier to program. The CTP also requires a step to calculate
-azimuths involving the control points and the projected point,
-which the MTP does not. Both projections share the same distance calculations,
-which limits the degree to which they can differ. That said, when programmed in
-the same language, the MTP is nearly twice as fast as the CTP. Of course,
-exact differences in time depend on details of the implementation.
+the control points, so can be calculated once and reused. The MTP is about 74\%
+faster than the CTP in terms of points transformed per unit of time. Of course,
+details of the implementation contribute to the time it takes, but PROJ's
+implementation of the CTP does not have any obvious inefficiencies and has
+changed little in more than two decades.
 
 The inverse formula for the MTP is calculated by Equations
 \ref{eq:inverse}--\ref{eq:inverser} and a single-variable Newton's method

@@ -55,6 +55,7 @@ static double lc(PJ_CONTEXT *ctx, double b, double c, double a) {
 }
 
 static double sinc(double x) {
+    //FIXME does this actually need the x ~ 0 condition? does this needs to be its own function at all?
     if (x < EPS8) {
         /* If this was a general purpose implementation it'd have abs(x) above,
         but in this application x is always nonnegative so don't bother*/
@@ -67,27 +68,28 @@ static double sinc(double x) {
 static PJ_XY mattri_s_forward(PJ_LP lp, PJ *P) { /* Spherical, forward */
     PJ_XY xy;
     struct pj_opaque *Q = static_cast<struct pj_opaque *>(P->opaque);
-    double rsq[3];
+    //double rsq[3];
+    double rsq;
     int i;
     double sinphi = sin(lp.phi);
     double cosphi = cos(lp.phi);
 
-    for (i = 0; i < 3; ++i) { /* dist from control pts */
-        rsq[i] = dist(P->ctx, lp.phi - Q->c[i].phi, Q->c[i].cosphi,
-                      Q->c[i].sinphi, cosphi, sinphi, lp.lam - Q->c[i].lam);
-        rsq[i] *= rsq[i];
-    }
     xy.x = 0;
     xy.y = 0;
 
-    for (i = 0; i < 3; ++i) {
-        xy.x += Q->Mmat[i][0] * rsq[i];
-        xy.y += Q->Mmat[i][1] * rsq[i];
+    for (i = 0; i < 3; ++i) { /* dist from control pts */
+        rsq = dist(P->ctx, lp.phi - Q->c[i].phi, Q->c[i].cosphi,
+                      Q->c[i].sinphi, cosphi, sinphi, lp.lam - Q->c[i].lam);
+        rsq *= rsq;
+        xy.x += Q->Mmat[i][0] * rsq;//OK
+        xy.y += Q->Mmat[i][1] * rsq;//OK
     }
     return xy;
 }
 
 static PJ_LP mattri_s_inverse(PJ_XY xy, PJ *P) {
+    /* FIXME make all the array operations column-major if you can
+    (i.e. [i][j] not [j][i])*/
     PJ_LP lp;
     double k[3];
     double r[3];
@@ -102,8 +104,8 @@ static PJ_LP mattri_s_inverse(PJ_XY xy, PJ *P) {
     double h = Q->h_0;
 
     for (i = 0; i < 3; ++i) {
-        k[i] = Q->Mpinv[0][i] * xy.x + Q->Mpinv[1][i] * xy.y;
-        if (-k[i] > h) {
+        k[i] = Q->Mpinv[0][i] * xy.x + Q->Mpinv[1][i] * xy.y;//FIXME
+        if (-k[i] > h) {//FIXME fmax instead?
             h = -k[i];
         }
     }
@@ -123,7 +125,7 @@ static PJ_LP mattri_s_inverse(PJ_XY xy, PJ *P) {
         }
         for (i = 0; i < 3; ++i) {
             for (j = 0; j < 3; ++j) {
-                Ac[j] += Q->Amat[j][i] * cosr[i];
+                Ac[j] += Q->Amat[j][i] * cosr[i];//FIXME
             }
         }
         f = -1;
@@ -159,7 +161,7 @@ static PJ_LP mattri_s_inverse(PJ_XY xy, PJ *P) {
     }
     for (i = 0; i < 3; ++i) {
         for (j = 0; j < 3; ++j) {
-            v[i] += Q->Vinv[j][i] * cosr[j];
+            v[i] += Q->Vinv[j][i] * cosr[j];//FIXME
         }
     }
     /*for (i = 0; i < 3; ++i) {
@@ -247,6 +249,7 @@ PJ *PROJECTION(mattri) {
     importing LAPACK would be overkill, and this is probably OK
     for this use case*/
     for (i = 0; i < 3; ++i) {
+        //FIXME wrong majorness, probably need to transpose anyways
         j = (i + 1) % 3;
         k = (i + 2) % 3;
         Q->Vinv[i][0] = V[j][1] * V[k][2] - V[j][2] * V[k][1];
@@ -265,6 +268,7 @@ PJ *PROJECTION(mattri) {
         for (j = 0; j < 3; ++j) {
             Q->Amat[i][j] = 0;
             for (k = 0; k < 3; ++k) {
+                //FIXME when fix orientation of Vinv
                 Q->Amat[i][j] += Q->Vinv[i][k] * Q->Vinv[j][k];
             }
             Q->h_0 += Q->Amat[i][j];

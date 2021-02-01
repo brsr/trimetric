@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Nov  6 21:06:45 2019
-
-@author: brsr
-
-Todo: Organize everything
-"""
 import geopandas
 import pandas as pd
-import shapely
-from shapely.geometry import Point, LineString, MultiPolygon, Polygon
+#import shapely
+from shapely.geometry import Point, LineString#, MultiPolygon, Polygon
 import pyproj
 import matplotlib.pyplot as plt
 import numpy as np
@@ -147,11 +140,11 @@ control_points = {
                                   Point(-58-33/60, -34-35/60), Point(-35-13/60, -5-47/60)]),
     'Europe_Wall_Map': geopandas.GeoSeries([Point(15, 72), Point(-8, 33), Point(38, 33)]),
     #'Strebe_Africa': geopandas.GeoSeries([Point(0,22), Point(22.5, -22), Point(45, 22)]),
-    'South_America_Wall_Map': geopandas.GeoSeries([Point(-80, 9), Point(-71, -53), Point(-35, -6)]),
     'North_America_Wall_Map': geopandas.GeoSeries([Point(-150, 55), Point(-92.5, 10), Point(-35, 55)]),
     'Africa_Wall_Map': geopandas.GeoSeries([Point(-19-3/60, 24+25/60), Point(20, -35), Point(59+3/60, 24+25/60)]),
     #'Hemisphere': geopandas.GeoSeries([Point(-180,0), Point(0, -60), Point(0, 60)]),
-}
+    'South_America_Wall_Map': geopandas.GeoSeries([Point(-80, 9), Point(-71, -53), Point(-35, -6)]),    
+}#south america last so we can use it in the construction figure
 
 focus = {
     'Canada_Atlas': world.index[world.name == 'Canada'],
@@ -162,7 +155,7 @@ focus = {
     'S_South_America': world.index[world.name.isin(['Bolivia', 'Chile',
                                                     'Argentina', 'Uruguay', 'Paraguay'])],
     'E_South_America': world.index[world.name == 'Brazil'],
-    # don't focus on France because of French Guinea
+    # don't focus on France because of French Guiana
     # and Russia because half of it is in Asia
     'Europe_Wall_Map': world.index[(world.continent == 'Europe') &
                                    (world.name != 'France') &
@@ -410,13 +403,13 @@ for name, controlpts in control_points.items():
     fig, axes = plt.subplots(1, 2, figsize=(10, 4.5), sharex=True, sharey=True)
     ax = axes[0]
     world_ctv.plot(ax=ax, color='k')
-    grat2_ct.plot(ax=ax, color='lightgrey', linewidth=1, alpha=0.5)
+    grat2_ct.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
     gd_ct.plot(ax=ax, color='green', linestyle=':')
     controlpts_ct.plot(ax=ax, color='green', marker='x')
     ax.set_title('Chamberlin')
     ax = axes[1]
     world_ltv.plot(ax=ax, color='k')
-    grat2_lt.plot(ax=ax, color='lightgrey', linewidth=1, alpha=0.5)
+    grat2_lt.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
     gd_lt.plot(ax=ax, color='green', linestyle=':')
     controlpts_lt.plot(ax=ax, color='green', marker='x')
     ax.set_xlim(*xbounds)
@@ -433,7 +426,7 @@ for name, controlpts in control_points.items():
         [grat2_ct, grat2_lt],
             [tissot_ct, tissot_lt], axes):
         worldx.plot(ax=ax, color='#B4B4B4')
-        grat2x.plot(ax=ax, color='lightgrey', linewidth=1, alpha=0.5)
+        grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
         tissots.plot(ax=ax, color='k')
         ax.scatter(tgtpts[0], tgtpts[1], color='g', marker='x')
         ax.axis('equal')
@@ -467,7 +460,7 @@ for name, controlpts in control_points.items():
                                                   [world_ctv, world_ltv],
                                                   [grat2_ct, grat2_lt], axes):
         worldx.plot(ax=ax, color='#B4B4B4')
-        grat2x.plot(ax=ax, color='lightgrey', linewidth=1, alpha=0.5)
+        grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
         cs = ax.contour(dp[0], dp[1],
                         np.where(rindex, scale, np.nan),
                         colors='k', levels=levels)
@@ -505,7 +498,7 @@ for name, controlpts in control_points.items():
                                                   [world_ctv, world_ltv],
                                                   [grat2_ct, grat2_lt], axes):
         worldx.plot(ax=ax, color='#B4B4B4')
-        grat2x.plot(ax=ax, color='lightgrey', linewidth=1, alpha=0.5)
+        grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
         cs = ax.contour(dp[0], dp[1],
                         np.where(rindex, omega, np.nan), colors='k',
                         levels=levels)
@@ -546,7 +539,7 @@ for name, controlpts in control_points.items():
                                                [world_ctv, world_ltv],
                                                [grat2_ct, grat2_lt], axes):
         worldx.plot(ax=ax, color='#B4B4B4')
-        grat2x.plot(ax=ax, color='lightgrey', linewidth=1, alpha=0.5)
+        grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
         cs = ax.contour(dp[0], dp[1],
                         np.where(rindex, ld, np.nan),
                         colors='k', levels=levels)
@@ -682,7 +675,7 @@ ltpt = np.array(sltpt[0].xy)
 fig, axes = plt.subplots(1, 3, figsize=(10, 2.7))
 ax = axes[0]
 #world.plot(ax=ax, color='k')
-grat.plot(ax=ax, color='lightgrey', linewidth=1, alpha=0.5)
+grat.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
 controlpts.plot(ax=ax, color='green', marker='x')
 gd.plot(ax=ax, color='green', linestyle=':')
 circs.plot(ax=ax, color='b')
