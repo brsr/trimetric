@@ -111,9 +111,7 @@ def circgen(lon, lat, r, cross=False):
                 circs.append(LineString(crox))
     return geopandas.GeoSeries(circs)
 
-#geod = pyproj.Geod(ellps='WGS84')
 r = 6371
-#r = 1
 geod = pyproj.Geod(a=r)
 grat = graticule()
 
@@ -223,8 +221,6 @@ for name, controlpts in control_points.items():
     adegpts_ar = np.tensordot(ar, vdegpts, axes=(1,0))
     zone_ar = np.signbit(adegpts_ar).sum(axis=0)
     index_ar = zone_ar == 0
-    #index_ar[0] = False
-    #index_ar[-1] = False
     wght_m = wght.copy()
     wght_m[~index_ar] = np.nan
     # initialize projections
@@ -246,10 +242,6 @@ for name, controlpts in control_points.items():
                   'R': geod.a}
     ct = pyproj.Proj(chamstring)
     lt = pyproj.Proj(mattristring)
-    #ct.get_factors(0,0)
-    #ct = mapproj.ChambTrimetric(actrlpts, geod)
-    #lt = mapproj.LinearTrimetric(actrlpts, geod)
-    #tgtpts = lt.tgtpts
     # various quantities to map
     gd = geodesics(actrlpts[0], actrlpts[1], geod, n=100)
     gd.crs = world.crs
@@ -317,15 +309,12 @@ for name, controlpts in control_points.items():
     tissot_ct = tissot_ct.affine_transform(affine)
 
     tgtpts = ptseriestoarray(controlpts_lt)
-    #adegpts_rc = lt.invtransform_v(adegpts_ct).reshape(adegpts.shape)
 
     # distortion calculations
     omega_lt = lt_factors.angular_distortion
     scale_lt = lt_factors.areal_scale
-    #mapproj.omegascale(adegpts, adegpts_lt, geod)
     omega_ct = ct_factors.angular_distortion
     scale_ct = ct_factors.areal_scale
-    #mapproj.omegascale(adegpts, adegpts_ct, geod)
 
     omegas = [omega_ct, omega_lt]
     scales = [scale_ct, scale_lt]
@@ -354,7 +343,6 @@ for name, controlpts in control_points.items():
         minscale = np.nanmin(scale[index_ar])
         maxscale = np.nanmax(scale[index_ar])
         scalerat = maxscale/minscale - 1
-        #print(avgscale, minscale, maxscale)
         pdtable.loc[name, pname] = [avgomega, maxomega, avgld, maxld,
                                     minscale, maxscale, scalerat*100]
     # %
@@ -452,7 +440,6 @@ for name, controlpts in control_points.items():
     axes[1].set_title('Matrix')
     axes[0].get_shared_y_axes().join(axes[0], axes[1])
     axes[1].set_yticklabels([])
-    #rindex = (scales[0] > 0) & (scales[1] > 0)
     rindex = np.isfinite(scales[0]) & np.isfinite(scales[1])
     for scale, dp, gdx, worldx, grat2x, ax in zip(scales,
                                                   [adegpts_ct, adegpts_lt],

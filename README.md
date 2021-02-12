@@ -18,12 +18,8 @@ At some point I'll write an actual patch for this, but for now:
 * `src/lib_proj.cmake`
 4. Compile and install PROJ as per its instructions.
 
-# Commands
+# Scripts
 
 * `trimetric.py`: Generates figures needed for the TeX file. This seems to run faster in an iPython or Spyder terminal, probably because of matplotlib.
-* `generate_pts_grid.py`: Generates a grid of points on the sphere.
-
-For timing, where `degpts.txt` is the output of `generate_pts_grid.py`:
-* `time proj +proj=mattri +lon_1=-80.0 +lon_2=-71.0 +lon_3=-35.0 +lat_1=9.0 +lat_2=-53.0 +lat_3=-6.0 +R=6371 < degpts.txt > /dev/null`
-* `time proj +proj=chamb +lon_1=-80.0 +lon_3=-71.0 +lon_2=-35.0 +lat_1=9.0 +lat_3=-53.0 +lat_2=-6.0 +R=6371 < degpts.txt > /dev/null`
-* `time cct +proj=noop < degpts.txt > /dev/null`
+* `timing.py`: Times the two projections and compares to a baseline no-op.
+* `invparams.py`: Used to check the convergence parameters of the inverse.
