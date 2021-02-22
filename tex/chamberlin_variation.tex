@@ -9,25 +9,25 @@
 \begin{document}
 \maketitle
 \begin{abstract}%max 250 words
-   A variation of the Chamberlin trimetric map projection is presented, termed
-   the matrix trimetric projection. The matrix trimetric projection amounts to a
+   We present a variation on the Chamberlin trimetric map projection. This new
+   projection, which we call the matrix trimetric projection, consists of a
    linear transformation of the squares of the distances between a given point
    and three control points. The formula of the forward projection is simpler
-   than the Chamberlin projection, making it nearly twice as fast to calculate.
-   The matrix trimetric projection has an inverse formula requires numerical
-   iteration of only one parameter. Comparisons between the two projections are
-   made using a representative list of control points. The Chamberlin trimetric
-   projection outperforms the matrix trimetric projection on measures of angle
-   deformation and scale deformation, but the reverse is true for a measure of
-   distance deformation, and the difference between the results of the
-   projections is small. Considered all together, the matrix trimetric
-   projection is a viable alternative for the use cases of the Chamberlin
-   trimetric projection.
+   than the Chamberlin projection, and admits an inverse formula which requires
+   numerical iteration of only one parameter. We make comparisons between the
+   two projections using a representative list of control points. The Chamberlin
+   trimetric projection outperforms the matrix trimetric projection on measures
+   of angle deformation and scale deformation, but the opposite is true for a
+   measure of distance deformation, and the difference between the results of
+   the projections is small over all measures. The forward Matrix trimetric
+   projection can be calculated in half the time of the Chamberlin trimetric
+   projection. We conclude that the matrix
+   trimetric projection is a viable alternative to the Chamberlin trimetric
+   projection, especially if an inverse is required or speed is important.
 
    \textit{Keywords: Chamberlin trimetric, matrix trimetric, projection,
    cartography, distortion, distance, triangulation}
 
-%FIXME compare to other recent papers in the Journal
 \end{abstract}
 
 \section{Introduction}
@@ -35,32 +35,37 @@ Any map projection must introduce some form of distortion. In particular, no
 map projection can be both conformal (angle-preserving) and equal-area.
 Projections that eliminate one form of distortion often introduce a great deal
 of another form of distortion. For example, many conformal projections
-drastically enlarge some areas compared to others, most notoriously the Mercator
-projection, but also the stereographic and the Lambert conformal conic
+drastically enlarge some areas compared to others, most notoriously the
+Mercator projection, but also the stereographic and the Lambert conformal conic
 projections. \citep{snyder87} A compromise map projection is one that seeks to
-balance different kinds of distortion; allowing small amounts of different kinds
-of distortion can produce a map that is more aesthetically pleasing.
+balance different kinds of distortion: allowing some amount of different kinds
+of distortion can produce a map where none of the distortion is conspicuous.
 
 The Chamberlin trimetric projection (CTP) is such a compromise map projection.
 It is named for Wellman Chamberlin, a chief cartographer for the National
 Geographic Society, which has published wall and atlas maps using his
-projection. The CTP is appropriate for mapping whole continents and large
-portions of continents. \citep{christensen} It may be thought of as a form of
-triangulation. Most often, the CTP is used with the spherical approximation of
-the Earth. Being a compromise projection, the CTP does
-not perfectly preserve angle, area, or distance. For most practical ellipsoids,
-distortions due to the spherical approximation are negligible compared to
-distortions due to the projection itself.
+projection. \citep{christensen} The CTP is appropriate for mapping whole
+continents and large portions of continents. It may be thought of as a form of
+triangulation. It can also be considered part of an ``$n$-metric'' family of
+projections with the azimuthal equidistant projection and the two-point
+equidistant projection, which depend on measurements from a single point and
+pair of points, respectively. \citep{snyder87} Being a compromise projection,
+the CTP does not perfectly preserve angle, area, or distance. Most often, the
+CTP is used with the spherical approximation of the Earth: for practical
+ellipsoids, distortions due to the spherical approximation are negligible
+compared to distortions due to the projection itself.
 
 The CTP is based on a simple geometric construction, using three arbitrary
-points on the sphere called the control points. Algebraic formulas are preferred
-for modern computerized GIS, and the formulas for the CTP are somewhat involved.
-This is presented in \citet{christensen}, and can be seen in the source code to
-its implementation in \citet{proj}; the algorithmic form has branching logic
-depending on where the given point lies with respect to the geodesics between
-control points, and when the given point lies near a control point.
+control points on the sphere. However, modern computerized GISes require
+algebraic formulas, which are somewhat involved for the CTP.
+These formulas are presented in \citet{christensen},
+and can be seen in the source code to its implementation in \citet{proj}.
+In general, the length of the algorithm relates to its speed of execution.
+In particular, the algorithmic form has branching logic depending on
+where the given point lies with respect to the geodesics between control points,
+which (as \citet{christensen} observed) can cause numerical issues.
 
-This text presents a new map projection called the matrix trimetric projection
+We present a new map projection called the matrix trimetric projection
 (MTP) as an alternative to the CTP. A geometric construction related to the
 CTP results in a map projection that is similar but has a simpler formula. This
 formula is a closed-form matrix function of the squares of the distances, and
@@ -69,14 +74,14 @@ algebra, refer to a text such as \citet{strang80} if needed.
 
 \section{Preliminaries}
 These projections will almost always be implemented using the spherical
-approximation, so formulas for that approximation are given shortly, and we'll
-refer to ``the sphere'' instead of ``the ellipsoid''. That said, the forward
+approximation. Formulas for that approximation are given shortly, and we'll
+refer to ``the sphere'' instead of ``the ellipsoid''. In fact, the forward
 formulas for the CTP and MTP are agnostic of the surface to be projected,
 depending only on the result of the distance function.
 
-Points on the sphere are denoted $\mathbf v$ or subscripted versions.
-$\mathbf v$ is a 3-vector with unit length, such that it lies on the unit
-sphere. Using this vector form allows us to take advantage of linear algebra.
+We denote points on the sphere by $\mathbf v$ or subscripted versions.
+$\mathbf v$ is a 3-vector with unit length lying on the unit sphere.
+Using this vector form allows us to take advantage of linear algebra.
 Points specified by latitude $\varphi$ and longitude $\lambda$
 can be converted to a unit vector as so:\citep{kent}
 \begin{equation}
@@ -106,9 +111,9 @@ d\left(\mathbf v_i, \mathbf v_j\right)
 \end{equation}
 where $R$ is the radius of the Earth. There are equivalent functions in terms
 of vectors that are more numerically stable for certain range of arguments,
-but this is the form used in the derivations.
+but this is the form we will use for derivations.
 
-Points in the Euclidean plane are denoted by $\mathbf p = [x, y]$ and
+We denote points in the Euclidean plane by $\mathbf p = [x, y]$ and
 subscripted versions. Planar distances are found using the usual
 Euclidean norm: $\|\mathbf p_a - \mathbf p_b\|$.
 
@@ -120,7 +125,7 @@ $\mathbf p_i$ as its $i$th column. The triangles with vertices at $\mathbf v_i$
 or $\mathbf p_i$ are called the control triangles: spherical or planar control
 triangle, respectively, if the distinction is important. For this paper,
 very small triangles are excluded, as are triangles with areas of an entire
-hemisphere or more; neither are typical use cases for the CTP.
+hemisphere or more: neither are typical use cases for the CTP.
 Note that the planar control triangle is \textbf{not} the image of the
 spherical control triangle under either projection! That image is
 slightly larger, containing the planar control triangle, and has curved edges.
@@ -131,15 +136,16 @@ for all $i$ and $j$ in $\{1, 2, 3\}$: the spherical length of the edges of the
 spherical control triangle are equal to the Euclidean lengths of the planar
 control triangles. Without loss of generality, also assume that
 $\|\mathbf p_i\|$ is the same for all $i$, such that the circumcenter of the
-control triangle lies at the origin. This just removes a translation in the
-plane in order to simplify the formula for the MTP; false northing and easting
-can be added later. Given $\mathbf v_i$, $\mathbf p_i$ can be constructed as
-follows. Let $i, j, k$ be a cyclic permutation of $\{1, 2, 3\}$,
-and let $s_k = d\left(\mathbf v_i, \mathbf v_j\right)$,
+control triangle lies at the origin. This assumption just removes a translation
+in the plane in order to simplify the formula for the MTP: false northing and
+easting can be added later. Given $\mathbf v_i$, $\mathbf p_i$ can be
+constructed as follows. Let $i, j, k$ be a cyclic permutation of
+$\{1, 2, 3\}$, and let $s_k = d\left(\mathbf v_i, \mathbf v_j\right)$,
 such that side $k$ with length $s_k$ is opposite point $k$. The circumradius
 of the Euclidean triangle with sides of length $s_k$ is \citep{isaacs}
 \begin{equation}\label{eq:circumradius}
-  C = \frac{\prod_i s_i}{\sqrt{\sum_i 2 s_i^2 s_{i+1}^2 - s_i^4}}.
+  C = \frac{\prod_i s_i}
+            {\sqrt{\sum_i 2 s_i^2 s_j^2 - s_i^4}}.
 \end{equation}
 From the (Euclidean) law of cosines,
 the interior angle $\phi_i$ at each vertex is
@@ -160,24 +166,24 @@ Then a set of points satisfying the requirements are given as so:
 These points can be rotated about the origin as desired. Note that some
 intermediate values in Equation \ref{eq:circumradius} may be large. This
 should not cause a problem on modern computers using common geographic
-units of distance, but some special applications may need to scale these
-values to avoid overflow.
+units of distance, but one may wish to use a unit of measurement such
+as radians of arc in these calculations and then scale the result accordingly.
 
 \section{Forward projection}
-Figure \ref{fig:chamberlin} shows the geometric construction of the CTP and the
+Figure \ref{fig:chamberlin} shows the geometric construction of the CTP and
 MTP. We start with the CTP. Let $\mathbf v$ denote the point to project, and
 let $r_i = d(\mathbf v_i, \mathbf v)$ be the true distances from each control
-point to $\mathbf v$. On the sphere, Figure \ref{fig:chamberlin}a shows the
-control triangle with vertices $\mathbf v_i$, the given point $\mathbf v$, and
+point to $\mathbf v$. Figure \ref{fig:chamberlin}a shows the control triangle
+on the sphere with vertices $\mathbf v_i$, the given point $\mathbf v$, and
 circles of radius $r_i$ centered on $\mathbf v_i$ and passing through
 $\mathbf v$. Moving to the plane, Figure \ref{fig:chamberlin}b shows circles of
-the same radius $r_i$ centered on $\mathbf p_i$. The circles appear to all
-intersect at a single point, but due to the difference in curvature between the
-sphere and the plane they in fact form a small triangle with curved edges, as
-shown in Figure \ref{fig:chamberlin}c. In the time of manual plotters the exact
-definition of this point was less important, but \citet{christensen} and modern
-implementations (e.g. \citealp{proj}) use the centroid of the small triangle,
-denoted $\mathbf p_c$.
+the same radius $r_i$ centered on the planar control points $\mathbf p_i$. The
+circles appear to all intersect at a single point, but due to the difference in
+curvature between the sphere and the plane they in fact form a small triangle
+with curved edges, as shown in Figure \ref{fig:chamberlin}c. In the time of
+manual plotters the exact definition of this point was less important, but
+\citet{christensen} and modern implementations (e.g. \citealp{proj}) use the
+centroid of the small triangle, denoted $\mathbf p_c$.
 Note that each pair of circles intersects in (at most) two points,
 so the algorithm must choose which point makes up the small triangle.
 In \citet{christensen} this is done by comparing the azimuths between each pair
@@ -186,26 +192,28 @@ of control points to the azimuths from each control point to the given point.
 \begin{figure}
   \includegraphics[width=\textwidth]{construction}
   \caption{Construction of the CTP and MTP. Plot 1a is in equirectangular
-  projection. Plot 1b is the projection to the plane. Plot 1c is the same as
-  plot 1b, zoomed in to the small triangle created by the three circles.
-  $\mathbf p_c$ is the point projected by the CTP and $\mathbf p_m$ is the
-  point projected by the MTP. Green solid lines indicate the control
-  triangles, the circles are blue dots, and the perpendiculars are red dashes.}
-  \label{fig:chamberlin}%FIXME wrong figure
+  projection. Plot 1b is the result of the CTP or MTP in the plane. Plot 1c is
+  the same as plot 1b, zoomed in to the small triangle created by the three
+  circles. $\mathbf p_c$ is the point projected by the CTP and $\mathbf p_m$ is
+  the point projected by the MTP. Green dotted lines indicate the control
+  triangles, the circles are blue solid lines,
+  and the perpendiculars are red dashes.}
+  \label{fig:chamberlin}
 \end{figure}
 
 Construction of the MTP starts like the CTP. If one draws a line through the two
 points of intersection of each pair of circles, that line is perpendicular to
 the triangle edge. These are the dashed red lines in Figure
 \ref{fig:chamberlin}b and c. The three lines, one for each pair of circles,
-appear to meet at a single point; this observation can be proven with a simple
+appear to meet at a single point: this observation can be proven with a simple
 triangle theorem sometimes attributed to Carnot. (\citealp{posamentier};
-\citealp{wohlgemuth}) This point is denoted $\mathbf p_m$. For most points
-within the control triangle $\mathbf p_m$ lies within the small triangle,
-although this is not true in general and is not necessary to create a valid map
-projection. (If $\mathbf v$ lies on a control triangle edge, one pair of circles
-has a single point of intersection. One can draw a perpendicular through
-that point of intersection and continue as in the general case.)
+\citealp{wohlgemuth}) That point of intersection is denoted $\mathbf p_m$. For
+most points within the control triangle $\mathbf p_m$ lies within the small
+triangle, although this is not true in general and is not necessary to create a
+valid map projection. (If $\mathbf v$ lies on a control triangle edge,
+one pair of circles has a single point of intersection. In that case,
+draw a perpendicular to the control triangle edge through that
+point of intersection and continue as in the general case.)
 
 The equations of each perpendicular line, taken together, create a linear
 system. It is an overdetermined system of 3 equations in 2 variables, but since
@@ -237,12 +245,12 @@ $T$ is equal to twice the area of the Euclidean control triangle.
 The matrix $\mathbf M$ has a (right) nullspace spanned by the vector
 $[1, 1, 1]^\top$. This implies the MTP is not one-to-one for all possible values
 of $r_i$. For example, for any values of $r_i$ such that $r_1 = r_2 = r_3$, then
-$\mathbf p_m = [0, 0]^\top$. The CTP and MTP project the entire sphere to a
-bounded portion of the plane; the boundary of that portion can be termed the
+$\mathbf p_m = [0, 0]^\top$. Like the CTP, the MTP projects the entire sphere to
+a bounded portion of the plane: the boundary of that portion can be termed the
 boundary of the projection. There is a region of overlap that is mapped into
 the same area but in reverse orientation.
-That region includes the antipodes of the control points.
-In real applications, the overlap region of the sphere can be excluded.
+That region includes the antipodes of the control points. In real applications,
+the overlap region of the sphere is not of interest and can be excluded.
 
 \section{Inverse projection}
 Given $\mathbf p_m$, start to invert the projection as so:
@@ -263,11 +271,11 @@ x_1 + x_2 - 2x_3 & y_1 + y_2 - 2y_3
 \mathbf P^\top .
 \end{equation}
 $k_i = r^2_i - h$ for some value of the free parameter $h$. This is a general
-solution to inverting Equation \ref{eq:forward}; $\mathbf M^+$ is the
+solution to inverting Equation \ref{eq:forward}: $\mathbf M^+$ is the
 pseudoinverse of $\mathbf M$ and vice versa. Because $\mathbf M^+$ has a left
 nullspace spanned by the vector $[1, 1, 1]$, it follows that $\sum_i k_i = 0$,
 and then that $h = \frac{1}{3}\sum_i r^2_i$.
-These equations are not enough to determine $r_i$ and $\mathbf v$;
+These equations are not enough to determine $r_i$ and $\mathbf v$:
 information about the sphere needs to be introduced.
 
 To simplify the derivation, use $R=1$, such that distance on the surface of the
@@ -327,14 +335,13 @@ so Newton's method converges at a merely linear rate. \citep{burden}
 \section{Comparison}
 The open-source C++ package PROJ \citep{proj} contains an implementation of the
 CTP. We implemented the MTP as a patch to PROJ, to enable a fair comparison of
-computation time, and to take advantage of the existing framework.
+computation time, and to take advantage of its existing framework.
 
-\citet{christensen} gave a list of control triangles for the CTP in that
-paper's Table 1. The control triangles are repeated in this text's Table
-\ref{table:ctrlpts}. These serve as a set of test cases for comparing the CTP
-and MTP. The length of each side and the area of each triangle
-(with the spherical approximation
-given earlier) is also given, and the control triangles are sorted by area.
+We use a set of control triangles, recorded in Table \ref{table:ctrlpts}, that
+is the same as \citet[p.~90]{christensen}. These serve as a set of
+test cases for comparing the CTP and MTP. The length of each side and the area
+of each triangle (with the spherical approximation given earlier) is also given,
+and the control triangles are sorted by area.
 
 \begin{table}
 \begin{tabular}{ p{2.5cm} | p{1.3cm} p{1.3cm} p{1.4cm} | r r r | r }
@@ -374,10 +381,10 @@ To measure distortion of area and angle, we use the areal scale factor $s$ and
 maximum angular deformation $\omega$ as defined in equations 12--15, 27, and 28
 in section 4 of \citet{snyder87}. These are implemented in the
 \verb|proj_factors()| function of PROJ, which estimates the derivatives
-numerically. There is no standard measurement of distance distortion for map
-projections, but for the projections in this text it makes sense to measure
-distances from the control points. Let $r_i = d(\mathbf v_i, \mathbf v)$ be the
-distance from $\mathbf v_i$ to $\mathbf v$ on the sphere, as earlier, and let
+numerically. For the projections in this text it makes sense to measure distance
+distortions with regards to the distance between a given point and the control
+points. Let $r_i = d(\mathbf v_i, \mathbf v)$ be the distance from
+$\mathbf v_i$ to $\mathbf v$ on the sphere, as earlier, and let
 $\ell_i = \|\mathbf p_i - \mathbf p\|$ be the distance from $\mathbf p_i$ to
 $\mathbf p$ in the plane.
 Our new measure, the total distance deviation or $D$, is the sum of
@@ -392,7 +399,7 @@ For each spherical control triangle, summary statistics for $\omega$, $D$, and
 $s$ are shown in Figures \ref{fig:omegap}--\ref{fig:scalep}. Note that the
 control triangles are sorted by area in these figures as well.
 These statistics are measured within the spherical control triangles,
-and should not be taken to summarize the entire map; in most cases,
+and should not be taken to summarize the entire map: in most cases,
 the region of interest extends outside the triangle.
 Rather, the statistics allow a quantitative comparison of the two projections.
 
@@ -403,12 +410,12 @@ Rather, the statistics allow a quantitative comparison of the two projections.
 \end{figure}
 
 As shown in Figure \ref{fig:omegap}, the MTP consistently has a larger $\omega$
-than the CTP; in fact, the maximum $\omega$ for the CTP is near the average
+than the CTP: in fact, the maximum $\omega$ for the CTP is near the average
 $\omega$ for the MTP. Maximum and average $\omega$ trend upwards with control
 triangle area, although asymmetry of the control triangle has some influence
-too, as in the Canada triangles. The maximum $\omega$ for the MTP is about 3
-times that for the CTP, and the average $\omega$ is about 3 to 4 times.
-However, for moderately-sized triangles,
+too, as can be seen in the Canada triangles. The maximum $\omega$ for the MTP
+is about 3 times that for the CTP, and the average $\omega$ is about 3 to 4
+times. However, for moderately-sized triangles,
 the maximum $\omega$ values are small for both projections, not exceeding 6°.
 Even for the large triangles -- Africa, North America, and South America Wall
 Maps -- the maximum distortion is tolerable, and the average does not exceed 6°.
@@ -422,7 +429,7 @@ Maps -- the maximum distortion is tolerable, and the average does not exceed 6°
 Total distance deviation $D$ in Figure \ref{fig:distancep} shows an even clearer
 trend, monotonically increasing with triangle area. Both projections have the
 same maximum $D$ values. The MTP has consistently lower average $D$ values than
-the CTP; among these triangles, the maximum $D$ for the CTP is about
+the CTP: among these triangles, the maximum $D$ for the CTP is about
 1.35 to 1.4 times the maximum $D$ for the MTP. The worst distortion,
 Africa Wall Map's maximum $D$, is less than 5\% of its edge lengths, and
 smaller control triangles have a maximum $D$ that is an even smaller percent.
@@ -433,13 +440,13 @@ smaller control triangles have a maximum $D$ that is an even smaller percent.
   \label{fig:scalep}
 \end{figure}
 
-As true 1:1 scale maps are impractical, absolute values of $s$ are unimportant;
+As true 1:1 scale maps are impractical, absolute values of $s$ are unimportant:
 the quantity $\sigma = \frac{\max s}{\min s} - 1$ is plotted in Figure
 \ref{fig:scalep} instead. The trend of $\sigma$ is less clear. A combination of
 control triangle area and asymmetry influences this value. In general, this
 value is higher for MTP than CTP, but not by any consistent factor,
 and for the large and symmetric Africa Wall Map triangle the MTP is
-actually lower than the CTP. The amount of scale distortion is small for both;
+actually lower than the CTP. The amount of scale distortion is small for both:
 except for the very obtuse Canada Atlas triangle, all values are below 10\%.
 
 A comparison of the two projections using the South America Wall Map control
@@ -451,7 +458,7 @@ is the western area near Ecuador and Peru, but no features on either map are
 conspicuously distorted compared to the other. Figure \ref{fig:tissot} shows
 ellipses of distortion with centers on a grid at steps of 15° latitude and
 longitude.
-Distortion is somewhat more visible in this figure; one can see that the
+Distortion is somewhat more visible in this figure: one can see that the
 MTP introduces slightly more non-conformal distortion near the control points.
 
 \begin{figure}
@@ -464,6 +471,7 @@ MTP introduces slightly more non-conformal distortion near the control points.
 \begin{figure}
   \includegraphics[width=\textwidth]{South_America_Wall_Map_tissot}
   \caption{Ellipses of distortion, on a 15° grid.}
+  %FIXME cheating a little here, use a, b, theta instead?
   \label{fig:tissot}
 \end{figure}
 
@@ -517,7 +525,7 @@ control triangle, outside the area shown in these figures. $\omega$ increases to
 180° at the projection boundary, and increases further in the overlap region,
 representing the inversion there. $D$ increases in general away from the center,
 but for the MTP $D$ remains low on the great circles
-containing the control triangle edges. $s$ is bounded for the entire sphere; it
+containing the control triangle edges. $s$ is bounded for the entire sphere: it
 increases to a maximum and then decreases to 0 at the projection boundary. If
 continued into the overlap region, $s$ reaches a negative minimum value.
 
@@ -525,9 +533,9 @@ continued into the overlap region, $s$ reaches a negative minimum value.
 \begin{tabular}{ l r r}
   Projection & Time (s) & Time minus overhead (s)\\
 \hline
-  CTP & 3.31 & 3.29 \\
-  MTP & 1.63 & 1.61 \\
-  No-op & 0.01 & 0.00
+  CTP & 3.42 & 3.40 \\
+  MTP & 1.63 & 1.62 \\
+  No-op & 0.02 & 0.00
 \end{tabular}
 \caption{Computation time comparison.}
 \label{table:time}
@@ -536,24 +544,24 @@ continued into the overlap region, $s$ reaches a negative minimum value.
 To determine computation time, the \texttt{timeit} package in Python
 \citep{python} was used with the PyProj interface to PROJ. \citep{pyproj} A
 data set of 64,800 points across the sphere was projected 100 times. This was
-done 5 times for each control triangle, and the lowest total time was used, as
-recommended by the \texttt{timeit} documentation. This was done for the two
-projections and a ``no-op'' projection that returns the input unchanged, used
-to estimate overhead. Only the transformation itself was timed, not the
-initialization of the projection: the initialization time is negligible
+repeated 5 times for each control triangle, and the lowest total time of those 5
+was recorded, as recommended by the \texttt{timeit} documentation. This was
+done for the two projections and a ``no-op'' projection that returns the input
+unchanged, used to estimate overhead. Only the transformation itself was timed,
+not the initialization of the projection: the initialization time is negligible
 compared to the time cost of running the projection repeatedly. As expected,
-the timing differences between control triangles were not significant for
-either projection, so are not shown here. Table \ref{table:time} shows the
-minimum runtimes across all control triangles. Accounting for overhead,
+the timing differences between control triangles were not significant for either
+projection. Table \ref{table:time} shows the minimum
+runtimes across all control triangles. Accounting for overhead,
 the MTP takes slightly less than half the time of the CTP.
 
 \section{Conclusion}
-We have demonstrated a new compromise map projection, the matrix trimetric
-projection (MTP). In general, the differences between the results of the
-Chamberlin trimetric projection (CTP) and MTP are small enough that either one
-is adequate for their common use cases.
-The MTP has the advantage if an inverse is needed,
-if one wishes to reduce distance distortion, or if processing time is a concern.
+We have presented a new compromise map projection, the matrix trimetric
+projection (MTP), and demonstrated that it is a suitable alternative to the
+Chamberlin trimetric projection (CTP). In general, the differences between the
+results of the CTP and MTP are small. The MTP has the advantage if an inverse
+is needed, if one wishes to reduce the distance distortion described earlier,
+or if processing time is a concern.
 
 The forward formula for the MTP is given in Equations
 \ref{eq:forward}--\ref{eq:forwardt}. Equation \ref{eq:forward} is a simple
@@ -571,7 +579,8 @@ iteration using Equations \ref{eq:inversefh} and \ref{eq:inversefph}. The
 matrices in Equations \ref{eq:inversem} and \ref{eq:inversev}, as well
 as matrix $\mathbf A$ in Equations \ref{eq:inversefh} and \ref{eq:inversefph},
 also depend only on the control points and can be reused. The CTP,
-in contrast, has no known inverse aside from brute force two-variable inversion.
+in contrast, has no known inverse aside from the general methods used to invert
+a two-variable function, which are slow and often unstable.
 
 Figures \ref{fig:omegap}--\ref{fig:scalep} plot aggregate measures of distortion
 within each of the listed control triangles. The CTP outperforms the MTP in
@@ -580,7 +589,8 @@ one case) scale distortion, but the reverse is true for distance distortion. For
 both projections, distortion tends to be larger for a larger control triangle.
 Figures \ref{fig:proj}--\ref{fig:distance} show the projections applied to
 South America, demonstrating the shape of distortions across the mapped area.
-Differences between the two projections are difficult to see with the eye.
+Differences between the two projections in Figure \ref{fig:proj} are difficult
+to see with the eye.
 
 The same control points were used for both projections in this work, but the
 optimal placement of control points may be somewhat different for the
@@ -589,14 +599,10 @@ The angular distortion of the MTP is lower
 in a region extending through the middle of the control triangle edges,
 so one may wish to orient the triangle to take advantage of that.
 
-The MTP is closely related to the CTP. Both are related to the azimuthal
-equidistant projection and the two-point equidistant projection, which depend
-on measurements from a single point and from a pair of points, respectively.
-\citep{snyder87} This suggests an ``$n$-metric'' family of projections based on
-distances from some number of points. The form of the forward formula suggests
-a possible family of projections that are simple functions of such distances,
-such as a polynomial function. Additionally, there may exist
-similar projections using measurements other than distance, such as area.
+The form of the MTP's forward formula suggests a possible family of projections
+that are simple functions of distances to control points, such as a polynomial
+function. Additionally, there may exist similar projections using measurements
+other than distance, such as area.
 
 A software implementation of the MTP, as well as code used to
 produce the calculations and figures in this text,

@@ -23,36 +23,47 @@ control_s = {
 }
 x, y = np.array(np.meshgrid(np.linspace(-179.5, 179.5, 360),
                                np.linspace(-89.5, 89.5, 180))).reshape(2,-1)
-res_chamb_a = np.inf
-res_mattri_a = np.inf
-res_noop_a = np.inf
-print('Control_points, No-op, Chamberlin, Matrix')
+
+pnames = ['No-op', 'Matrix', 'Chamberlin', 'TPEQD']
+allresults = {name: np.inf for name in pnames}
+print('Control_points, No-op, Matrix, Chamberlin, TPEQD')
 for name, ctrlpts in control_s.items():
-    chamstring = {'proj': 'chamb', #clockwise
-                  'lon_1': ctrlpts[0][0],
-                  'lon_2': ctrlpts[2][0],
-                  'lon_3': ctrlpts[1][0],
-                  'lat_1': ctrlpts[0][1],
-                  'lat_2': ctrlpts[2][1],
-                  'lat_3': ctrlpts[1][1]}
-    mattristring = {'proj': 'mattri', #counterclockwise
-                  'lon_1': ctrlpts[0][0],
-                  'lon_2': ctrlpts[1][0],
-                  'lon_3': ctrlpts[2][0],
-                  'lat_1': ctrlpts[0][1],
-                  'lat_2': ctrlpts[1][1],
-                  'lat_3': ctrlpts[2][1]}
-    tr_chamb = pyproj.transformer.Transformer.from_crs(wgs84, chamstring)
-    tr_mattri = pyproj.transformer.Transformer.from_crs(wgs84, mattristring)
-    tr_noop = pyproj.transformer.Transformer.from_crs(wgs84, wgs84) 
-    res_chamb = min(timeit.repeat(stmt='tr_chamb.transform(x, y)', 
-                              globals=globals(), number=100))
-    res_mattri = min(timeit.repeat(stmt='tr_mattri.transform(x, y)', 
-                              globals=globals(), number=100))
-    res_noop = min(timeit.repeat(stmt='tr_noop.transform(x, y)', 
-                              globals=globals(), number=100))
-    res_chamb_a = min(res_chamb_a, res_chamb)
-    res_mattri_a = min(res_mattri_a, res_mattri)
-    res_noop_a = min(res_noop_a, res_noop)    
-    print(name, ", ", res_noop, ", ", res_mattri, ", ", res_chamb)
-print("Total, ", res_noop_a, ", ", res_mattri_a, ", ", res_chamb_a)
+    inits = {'Chamberlin': {'proj': 'chamb', #clockwise
+                      'lon_1': ctrlpts[0][0],
+                      'lon_2': ctrlpts[2][0],
+                      'lon_3': ctrlpts[1][0],
+                      'lat_1': ctrlpts[0][1],
+                      'lat_2': ctrlpts[2][1],
+                      'lat_3': ctrlpts[1][1]},
+             'Matrix': {'proj': 'mattri', #counterclockwise
+                      'lon_1': ctrlpts[0][0],
+                      'lon_2': ctrlpts[1][0],
+                      'lon_3': ctrlpts[2][0],
+                      'lat_1': ctrlpts[0][1],
+                      'lat_2': ctrlpts[1][1],
+                      'lat_3': ctrlpts[2][1]},
+             'TPEQD': {'proj': 'tpeqd',
+                      'lon_1': ctrlpts[0][0],
+                      'lon_2': ctrlpts[1][0],
+                      'lat_1': ctrlpts[0][1],
+                      'lat_2': ctrlpts[1][1]},
+             'No-op': wgs84
+             }
+    transformers = {}
+    for pn, p in inits.items():
+        transformers[pn] = pyproj.transformer.Transformer.from_crs(wgs84, p)
+    
+    results = {}
+    for trn, tr in transformers.items():
+        xport = {'tr': tr, 'x': x, 'y': y}
+        results[trn] = min(timeit.repeat(stmt='tr.transform(x, y)', 
+                              globals=xport, number=100)) 
+        allresults[trn] = min(allresults[trn], results[trn])
+    print(name, ", ", end="")
+    for name in pnames:
+        print(results[name], ", ", end="")
+    print()
+print('Overall, ', end="")
+for name in pnames:
+    print(allresults[name], ", ", end="")
+print()
