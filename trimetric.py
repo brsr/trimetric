@@ -5,6 +5,7 @@ import pandas as pd
 #import shapely
 from shapely.geometry import Point, LineString#, MultiPolygon, Polygon
 import pyproj
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 #import mapproj
@@ -143,7 +144,8 @@ control_points = {
     #'Hemisphere': geopandas.GeoSeries([Point(-180,0), Point(0, -60), Point(0, 60)]),
     'South_America_Wall_Map': geopandas.GeoSeries([Point(-80, 9), Point(-71, -53), Point(-35, -6)]),    
 }#south america last so we can use it in the construction figure
-
+control_points = {'South_America_Wall_Map': 
+                  control_points['South_America_Wall_Map']}
 focus = {
     'Canada_Atlas': world.index[world.name == 'Canada'],
     'Canada_Wall_Map': world.index[world.name == 'Canada'],
@@ -183,9 +185,9 @@ exclude = {
 }
 
 extents = {'South_America_Wall_Map': ([-3500, 4500], [-4000, 4000])}
-scalelevels = {'South_America_Wall_Map': np.linspace(0.98, 1.12, 8)}
+scalelevels = {'South_America_Wall_Map': np.linspace(0.96, 1.14, 10)}
 omegalevels = {'South_America_Wall_Map': np.linspace(0, 10, 6)}
-dlevels = {'South_America_Wall_Map': np.linspace(0, 100, 3)}
+dlevels = {'South_America_Wall_Map': np.linspace(0, 150, 7)}
 
 for controlpts in control_points.values():
     controlpts.crs = world.crs
@@ -193,6 +195,7 @@ for controlpts in control_points.values():
 pdindex = pd.MultiIndex.from_product(
     [control_points.keys(), pnames], names=['ctrlpts', 'proj'])
 # %%
+figsize=(7.2, 3.5)
 cptable = pd.DataFrame(dtype=float,
                        columns=['pt1_lon', 'pt1_lat',
                                 'pt2_lon', 'pt2_lat',
@@ -350,20 +353,20 @@ for name, controlpts in control_points.items():
     world_ctv = world_ct.drop(excl)
     world_ltv = world_lt.drop(excl)
     # %#figure: comparison of projections (omit, use the next one)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=figsize, sharey=True)
     ax = axes[0]
     world_ctv.plot(ax=ax, color='k')
     grat_ct.plot(ax=ax, color='lightgrey', linewidth=1)
-    controlpts_ct.plot(ax=ax, color='green', marker='x')
-    gd_ct.plot(ax=ax, color='green', linestyle=':')
+    controlpts_ct.plot(ax=ax, color='r')
+    #gd_ct.plot(ax=ax, color='green', linestyle=':')
     ax.set_title('Chamberlin')
     ax = axes[1]
     world_ltv.plot(ax=ax, color='k')
     grat_lt.plot(ax=ax, color='lightgrey', linewidth=1)
-    controlpts_lt.plot(ax=ax, color='green', marker='x')
-    gd_lt.plot(ax=ax, color='green', linestyle=':')
+    controlpts_lt.plot(ax=ax, color='r')
+    #gd_lt.plot(ax=ax, color='green', linestyle=':')
     ax.set_title('Matrix')
-    fig.savefig(name + '_whole.png')
+    fig.savefig(name + '_whole.png', bbox_inches = 'tight')
     # bounds for plots
     try:
         xbounds, ybounds = extents[name]
@@ -388,24 +391,24 @@ for name, controlpts in control_points.items():
             ymean = tgtpts[1].mean()
             ybounds = ymean - xsize/2, ymean + xsize/2,
     # %#figure: zoom comparison of projections
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.5), sharex=True, sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=figsize, sharex=True, sharey=True)
     ax = axes[0]
     world_ctv.plot(ax=ax, color='k')
     grat2_ct.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
-    gd_ct.plot(ax=ax, color='green', linestyle=':')
-    controlpts_ct.plot(ax=ax, color='green', marker='x')
+    #gd_ct.plot(ax=ax, color='green', linestyle=':')
+    controlpts_ct.plot(ax=ax, color='r')#, marker='x')
     ax.set_title('Chamberlin')
     ax = axes[1]
     world_ltv.plot(ax=ax, color='k')
     grat2_lt.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
-    gd_lt.plot(ax=ax, color='green', linestyle=':')
-    controlpts_lt.plot(ax=ax, color='green', marker='x')
+    #gd_lt.plot(ax=ax, color='green', linestyle=':')
+    controlpts_lt.plot(ax=ax, color='r')#, marker='x')
     ax.set_xlim(*xbounds)
     ax.set_ylim(*ybounds)
     ax.set_title('Matrix')
-    fig.savefig(name + '_zoom.eps')
+    fig.savefig(name + '_zoom.eps', bbox_inches = 'tight')
     # %#figure: tissot
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.5), sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=figsize, sharey=True)
     axes[0].set_title('Chamberlin')
     axes[1].set_title('Matrix')
     for gdx, worldx, grat2x, tissots, ax in zip(
@@ -416,15 +419,15 @@ for name, controlpts in control_points.items():
         worldx.plot(ax=ax, color='#B4B4B4')
         grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
         tissots.plot(ax=ax, color='k')
-        ax.scatter(tgtpts[0], tgtpts[1], color='g', marker='x')
+        ax.scatter(tgtpts[0], tgtpts[1], color='r')
         ax.axis('equal')
-        gdx.plot(ax=ax, color='g', linestyle=':')
-        ax.tick_params(axis='y', labelrotation=90)
+        #gdx.plot(ax=ax, color='g', linestyle=':')
+        #ax.tick_params(axis='y', labelrotation=90)
     ax.set_xlim(*xbounds)
     ax.set_ylim(*ybounds)
     plt.draw()
     axes[0].set_yticklabels(axes[0].get_yticklabels(), va='center')
-    fig.savefig(name + '_tissot.eps')
+    fig.savefig(name + '_tissot.eps', bbox_inches = 'tight')
     # %#figure: scale
     try:
         levels = scalelevels[name]
@@ -435,7 +438,7 @@ for name, controlpts in control_points.items():
         levels = np.linspace(pmin, pmax, 6)
 
     fig, axes = plt.subplots(1, 3, gridspec_kw={"width_ratios": [1, 1, 0.1]},
-                             figsize=(10, 4.5))
+                             figsize=figsize)
     axes[0].set_title('Chamberlin')
     axes[1].set_title('Matrix')
     axes[0].get_shared_y_axes().join(axes[0], axes[1])
@@ -446,34 +449,38 @@ for name, controlpts in control_points.items():
                                                   [gd_ct, gd_lt],
                                                   [world_ctv, world_ltv],
                                                   [grat2_ct, grat2_lt], axes):
-        worldx.plot(ax=ax, color='#B4B4B4')
-        grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
-        cs = ax.contour(dp[0], dp[1],
-                        np.where(rindex, scale, np.nan),
-                        colors='k', levels=levels)
-        ax.clabel(cs, fmt='%1.2f', inline_spacing=-8)
+        #worldx.plot(ax=ax, color='#B4B4B4')
+        #grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
+        #cs = ax.contour(dp[0], dp[1],
+        #                np.where(rindex, scale, np.nan),
+        #                colors='k', levels=levels)
+        cs = ax.contourf(dp[0], dp[1], scale,
+                        #np.where(rindex, scale, np.nan),
+                        cmap='gray',                        
+                        levels=levels)        
+        #ax.clabel(cs, fmt='%1.2f', inline_spacing=-8)
         thing = scale.copy()
         thing[~index_ar] = np.nan
         ah = np.unravel_index(np.nanargmax(thing), thing.shape)
         al = np.unravel_index(np.nanargmin(thing), thing.shape)
-        ax.scatter(dp[0][al], dp[1][al], color='k', marker='+')
-        ax.scatter(tgtpts[0], tgtpts[1], color='g', marker='x')
+        ax.scatter(dp[0][al], dp[1][al], color='w', marker='+')
+        ax.scatter(tgtpts[0], tgtpts[1], color='r')
         ax.axis('equal')
-        gdx.plot(ax=ax, color='g', linestyle=':')
-        ax.tick_params(axis='y', labelrotation=90)
+        #gdx.plot(ax=ax, color='k', linestyle=':')
+        #ax.tick_params(axis='y', labelrotation=90)
     ax.set_xlim(*xbounds)
     ax.set_ylim(*ybounds)
     plt.draw()
     axes[0].set_yticklabels(axes[0].get_yticklabels(), va='center')
     fig.colorbar(cs, axes[2])
-    fig.savefig(name + '_scale.eps')
+    fig.savefig(name + '_scale.eps', bbox_inches = 'tight')
     # %#figure: omega
     try:
         levels = omegalevels[name]
     except KeyError:
         levels = np.linspace(0, np.floor(px.maxomega.max()), 6)
     fig, axes = plt.subplots(1, 3, gridspec_kw={"width_ratios": [1, 1, 0.1]},
-                             figsize=(10, 4.5))
+                             figsize=figsize)
     axes[0].set_title('Chamberlin')
     axes[1].set_title('Matrix')
     axes[0].get_shared_y_axes().join(axes[0], axes[1])
@@ -484,21 +491,26 @@ for name, controlpts in control_points.items():
                                                   [gd_ct, gd_lt],
                                                   [world_ctv, world_ltv],
                                                   [grat2_ct, grat2_lt], axes):
-        worldx.plot(ax=ax, color='#B4B4B4')
-        grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
-        cs = ax.contour(dp[0], dp[1],
-                        np.where(rindex, omega, np.nan), colors='k',
+        #worldx.plot(ax=ax, color='#B4B4B4')
+        #grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
+        #cs = ax.contour(dp[0], dp[1],
+        #                np.where(rindex, omega, np.nan), colors='k',
+        #                levels=levels)
+        cs = ax.contourf(dp[0], dp[1], omega,
+                        #np.where(rindex, omega, np.nan),
+                        cmap='gray',                        
                         levels=levels)
-        ax.clabel(cs, fmt='%1.0f', inline_spacing=0)
+        
+        #ax.clabel(cs, fmt='%1.0f', inline_spacing=0)
         thing = omega.copy()
         thing[~index_ar] = np.nan
         ah = np.unravel_index(np.nanargmax(thing), thing.shape)
         al = np.unravel_index(np.nanargmin(thing), thing.shape)
-        ax.scatter(dp[0][al], dp[1][al], color='k', marker='+')
-        ax.scatter(tgtpts[0], tgtpts[1], color='g', marker='x')
+        ax.scatter(dp[0][al], dp[1][al], color='w', marker='+')
+        ax.scatter(tgtpts[0], tgtpts[1], color='r')
         ax.axis('equal')
-        gdx.plot(ax=ax, color='g', linestyle=':')
-        ax.tick_params(axis='y', labelrotation=90)
+        #gdx.plot(ax=ax, color='k', linestyle=':')
+        #ax.tick_params(axis='y', labelrotation=90)
         ax.contour(dp[0], dp[1],
                    np.where(rindex, param, np.nan),
                    levels=[0], colors='b', linestyles='--')
@@ -507,39 +519,45 @@ for name, controlpts in control_points.items():
     plt.draw()
     axes[0].set_yticklabels(axes[0].get_yticklabels(), va='center')
     fig.colorbar(cs, axes[2])
-    fig.savefig(name + '_omega.eps')
+    fig.savefig(name + '_omega.eps', bbox_inches = 'tight')
     # %#figure: deviation in distance
     try:
         levels = dlevels[name]
     except KeyError:
         levels = np.linspace(0, np.ceil(px.maxld.max()), 6)
     fig, axes = plt.subplots(1, 3, gridspec_kw={"width_ratios": [1, 1, 0.1]},
-                             figsize=(10, 4.5))
+                             figsize=figsize)
     axes[0].set_title('Chamberlin')
     axes[1].set_title('Matrix')
     axes[0].get_shared_y_axes().join(axes[0], axes[1])
     axes[1].set_yticklabels([])
     param = lengthdistorts[0] - lengthdistorts[1]
+    #levels = [2, 5, 10, 20, 50, 100, 200, 500]
     for ld, dp, gdx, worldx, grat2x, ax in zip(lengthdistorts,
                                                [adegpts_ct, adegpts_lt],
                                                [gd_ct, gd_lt],
                                                [world_ctv, world_ltv],
                                                [grat2_ct, grat2_lt], axes):
-        worldx.plot(ax=ax, color='#B4B4B4')
-        grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
-        cs = ax.contour(dp[0], dp[1],
-                        np.where(rindex, ld, np.nan),
-                        colors='k', levels=levels)
-        ax.clabel(cs, fmt='%1.0f', inline_spacing=-2)
+        #worldx.plot(ax=ax, color='#B4B4B4')
+        #grat2x.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
+        #cs = ax.contour(dp[0], dp[1],
+        #                np.where(rindex, ld, np.nan),
+        #                colors='k', levels=levels)
+        cs = ax.contourf(dp[0], dp[1], ld,
+                        #np.where(rindex, ld, np.nan),
+                        cmap='gray', norm=matplotlib.colors.LogNorm(),
+                        levels=levels)
+        
+        #ax.clabel(cs, fmt='%1.0f', inline_spacing=-2)
         thing = ld.copy()
         thing[~index_ar] = np.nan
         ah = np.unravel_index(np.nanargmax(thing), thing.shape)
         #al = np.unravel_index(np.nanargmin(thing), thing.shape)
         ax.scatter(dp[0][ah], dp[1][ah], color='k', marker='+')
-        ax.scatter(tgtpts[0], tgtpts[1], color='g', marker='x')
-        gdx.plot(ax=ax, color='g', linestyle=':')
+        ax.scatter(tgtpts[0], tgtpts[1], color='r', zorder=8)
+        #gdx.plot(ax=ax, color='k', linestyle=':')
         ax.axis('equal')
-        ax.tick_params(axis='y', labelrotation=90)
+        #ax.tick_params(axis='y', labelrotation=90)
         ax.contour(dp[0], dp[1],
                    np.where(rindex, param, np.nan),
                    levels=[0], colors='b', linestyles='--')
@@ -548,7 +566,7 @@ for name, controlpts in control_points.items():
     plt.draw()
     axes[0].set_yticklabels(axes[0].get_yticklabels(), va='center')
     fig.colorbar(cs, axes[2])
-    fig.savefig(name + '_distance.eps')
+    fig.savefig(name + '_distance.eps', bbox_inches = 'tight')
 # %%
 #pdtable.loc['Hemisphere', 'scalerat'] = np.inf
 #pdtable.loc['Hemisphere', 'maxomega'] = 180
@@ -596,7 +614,7 @@ dd2 = functools.partial(decdeg2dm, suffix=['S','N'])
 cptablefmt[lats] = np.vectorize(dd2)(cptable[lats].values)
 cptablefmt.to_csv('control_triangles.csv', index_label='name')
 # %% scatter plots of the previous: omega
-fig, ax = plt.subplots(figsize=(7, 4))
+fig, ax = plt.subplots(figsize=(7.8, 3))
 ax.grid(b=True, which='major', color='#666666', linestyle='-', axis='x')
 ax.scatter(cham_maxo, ticks, edgecolor='k', zorder=6,
            color='lightblue', label='Chamberlin max')
@@ -611,9 +629,9 @@ ax.set_yticks(ticks)
 ax.set_yticklabels(labels)
 ax.legend(loc='best')
 fig.subplots_adjust(left=0.3)
-fig.savefig('omegaplot.eps')
+fig.savefig('omegaplot.eps', bbox_inches = 'tight')
 # %%D
-fig, ax = plt.subplots(figsize=(7, 4))
+fig, ax = plt.subplots(figsize=(7.8, 3))
 ax.grid(b=True, which='major', color='#666666', linestyle='-', axis='x')
 #ax.scatter(cham_maxd, ticks, edgecolor='k', zorder=6,
 #           color='lightblue', label='Chamberlin max')
@@ -628,9 +646,9 @@ ax.set_yticks(ticks)
 ax.set_yticklabels(labels)
 ax.legend(loc='best')
 fig.subplots_adjust(left=0.3)
-fig.savefig('distanceplot.eps')
+fig.savefig('distanceplot.eps', bbox_inches = 'tight')
 # %% scale
-fig, ax = plt.subplots(figsize=(7, 4))
+fig, ax = plt.subplots(figsize=(7.8, 3))
 ax.grid(b=True, which='major', color='#666666', linestyle='-', axis='x')
 ax.scatter(cham_sr, ticks, edgecolor='k', color='dodgerblue',
            label='Chamberlin', zorder=6)
@@ -642,7 +660,7 @@ ax.set_yticklabels(labels)
 ax.legend(loc='best')
 ax.set_xlim(left=0)
 fig.subplots_adjust(left=0.3)
-fig.savefig('scaleplot.eps')
+fig.savefig('scaleplot.eps', bbox_inches = 'tight')
 # %%figure: show construction
 testpt = [-70, -5]
 f, b, r = geod.inv(testpt[0]*np.ones(actrlpts.shape[1]),
@@ -659,7 +677,7 @@ ctpt = np.array(sctpt[0].xy)
 sltpt = stestpt.to_crs(mattristring).rotate(angle, origin=(0, 0))
 ltpt = np.array(sltpt[0].xy)
 
-fig, axes = plt.subplots(1, 3, figsize=(10, 2.7))
+fig, axes = plt.subplots(1, 3, figsize=(8, 2))
 ax = axes[0]
 #world.plot(ax=ax, color='k')
 grat.plot(ax=ax, color='lightgrey', linewidth=1)#, alpha=0.5)
@@ -739,4 +757,4 @@ ax.annotate("$p_\ell$", (ltpt[0], ltpt[1]), xytext=(0, 8),
 ax.annotate("$p_c$", (ctpt[0], ctpt[1]), xytext=(5, 0),
             ha='left', textcoords="offset points")
 ax.set_title('c')
-fig.savefig('construction.eps')
+fig.savefig('construction.eps', bbox_inches = 'tight')

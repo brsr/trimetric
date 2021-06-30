@@ -8,15 +8,17 @@ things) a Python prototype of the Matrix Trimetric Projection.
 
 # Installation
 This new projection is implemented in the framework of [PROJ](https://github.com/OSGeo/PROJ)
-At some point I'll write an actual patch for this, but for now:
 
-1. Download the source of PROJ, at least version 8. At the time of this writing, there's no release with that version, so just download the current version in development from the GitHub site.
+1. Download the source of PROJ version 8.
 2. Copy `src/mattri.cpp` to `src/projections/` in PROJ.
 3. Update these files to include `mattri` (just copy the `chamb` lines).
 * `src/Makefile.am`
 * `src/pj_list.h`
 * `src/lib_proj.cmake`
 4. Compile and install PROJ as per its instructions.
+5. Install [PyProj](https://github.com/pyproj4/pyproj) from source as per its instructions.
+
+Check that the right version of PROJ is being recognized by PyProj with the command `pyproj.show_versions()`. You may need to remove other versions of PROJ and PyProj, or install into a fresh environment.
 
 # Scripts
 
