@@ -11,7 +11,7 @@ This new projection is implemented in the framework of [PROJ](https://github.com
 
 1. Download the source of PROJ version 8.
 2. Copy `src/mattri.cpp` to `src/projections/` in PROJ.
-3. Update these files to include `mattri` (just copy the `chamb` lines).
+3. Update these files to include `mattri` (just copy the `chamb` lines and change `chamb` to `mattri`):
 * `src/Makefile.am`
 * `src/pj_list.h`
 * `src/lib_proj.cmake`
@@ -21,6 +21,7 @@ This new projection is implemented in the framework of [PROJ](https://github.com
 Check that the right version of PROJ is being recognized by PyProj with the command `pyproj.show_versions()`. You may need to remove other versions of PROJ and PyProj, or install into a fresh environment.
 
 # Scripts
+These scripts require Python 3.
 
 * `trimetric.py`: Generates figures needed for the TeX file. This seems to run faster in an iPython or Spyder terminal, probably because of matplotlib.
 * `timing.py`: Times the two projections and compares to a baseline no-op.
