@@ -1,7 +1,7 @@
 # trimetric
 Code & TeX archive for the paper "A variation on the Chamberlin trimetric map projection",
 which introduces the new Matrix Trimetric map projection and compares it to the
-Chamberlin Trimetric projection.
+Chamberlin Trimetric projection. See [here](https://github.com/brsr/trimetric/blob/main/tex/chamberlin_variation.pdf) for a PDF of the paper itself.
 
 Spun off from https://github.com/brsr/mapproj, which contains (among other
 things) a Python prototype of the Matrix Trimetric Projection.
