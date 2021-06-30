@@ -144,8 +144,8 @@ control_points = {
     #'Hemisphere': geopandas.GeoSeries([Point(-180,0), Point(0, -60), Point(0, 60)]),
     'South_America_Wall_Map': geopandas.GeoSeries([Point(-80, 9), Point(-71, -53), Point(-35, -6)]),    
 }#south america last so we can use it in the construction figure
-control_points = {'South_America_Wall_Map': 
-                  control_points['South_America_Wall_Map']}
+#control_points = {'South_America_Wall_Map': 
+#                  control_points['South_America_Wall_Map']}
 focus = {
     'Canada_Atlas': world.index[world.name == 'Canada'],
     'Canada_Wall_Map': world.index[world.name == 'Canada'],
@@ -545,7 +545,7 @@ for name, controlpts in control_points.items():
         #                colors='k', levels=levels)
         cs = ax.contourf(dp[0], dp[1], ld,
                         #np.where(rindex, ld, np.nan),
-                        cmap='gray', norm=matplotlib.colors.LogNorm(),
+                        cmap='gray', #norm=matplotlib.colors.LogNorm(),
                         levels=levels)
         
         #ax.clabel(cs, fmt='%1.0f', inline_spacing=-2)
