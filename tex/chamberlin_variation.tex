@@ -2,9 +2,12 @@
 \usepackage[outdir=./]{epstopdf}
 \usepackage[natbibapa,nodoi]{apacite}
 \usepackage{mathtools, fix-cm}
+%\usepackage[nomarkers, nolists, tablesfirst]{endfloat}
+%\renewcommand{\efloatseparator}{\mbox{}}
+
 \title{A variation on the Chamberlin trimetric map projection}
-\author{Author: author@email.com, 55 XXXXXX St, XXXXXXXX, XX, 01234}
-\date{December 2020}
+%\author{Brenton R S Recht: brstone@gmail.com, 55 Foster St, Whitesboro, NY, 13492. ORCiD 0000-0001-7657-7218}
+\date{June 2021}
 
 \begin{document}
 \maketitle
@@ -109,8 +112,10 @@ One statement of the distance function on the sphere is
 d\left(\mathbf v_i, \mathbf v_j\right)
 = R \arccos\left(\mathbf v_i \cdot \mathbf v_j\right)
 \end{equation}
-where $R$ is the radius of the Earth. There are equivalent functions in terms
-of vectors that are more numerically stable for certain range of arguments,
+where $R$ is the radius of the sphere. We use a radius of 6,371 km,
+approximately equal to the most common mean radii of the Earth. \citep{snyder87}
+There are equivalent functions in terms of vectors
+that are more numerically stable for certain range of arguments,
 but this is the form we will use for derivations.
 
 We denote points in the Euclidean plane by $\mathbf p = [x, y]$ and
@@ -123,7 +128,9 @@ $\mathbf v_i$ as its $i$th column. Let $\mathbf p_1$ etc. be the control points
 on the plane, in corresponding order, and $\mathbf P$ be the matrix having
 $\mathbf p_i$ as its $i$th column. The triangles with vertices at $\mathbf v_i$
 or $\mathbf p_i$ are called the control triangles: spherical or planar control
-triangle, respectively, if the distinction is important. For this paper,
+triangle, respectively, if the distinction is important. The control points
+are usually chosen so that the control triangle contains or mostly contains
+the geographic region of interest. For this paper,
 very small triangles are excluded, as are triangles with areas of an entire
 hemisphere or more: neither are typical use cases for the CTP.
 Note that the planar control triangle is \textbf{not} the image of the
@@ -370,7 +377,7 @@ Canada Wall & 150°W, 60°N & 97°30'W, 50°N & 45°W, 60°N &
 Canada \mbox{Atlas} & 98°13'W, 61°39'N & 135°W, 40°N & 55°W, 40°N &
   6,560 & 3,761 & 3,449 & 5.28
 \end{tabular}
-\caption{Table of control triangles and their measurements, from
+\caption{Table of control triangles and their measurements. Coordinates are from
 \citet{christensen}. Side $n$ is opposite point $n$. Lengths are in km,
 and areas are in millions of square km.
 Measurements use spherical approximation.}
@@ -392,8 +399,6 @@ differences in the distances measured on projected and unprojected distances:
 \begin{equation}
  D = \sum_i \left| r_i - \ell_i \right|.
 \end{equation}
-We use the spherical approximation to the Earth, with a radius of 6,371 km,
-approximately equal to the most common mean radii. \citep{snyder87}
 
 For each spherical control triangle, summary statistics for $\omega$, $D$, and
 $s$ are shown in Figures \ref{fig:omegap}--\ref{fig:scalep}. Note that the
@@ -463,8 +468,8 @@ MTP introduces slightly more non-conformal distortion near the control points.
 
 \begin{figure}
   \includegraphics[width=\textwidth]{South_America_Wall_Map_zoom}
-  \caption{Projection of South America and surroundings. Green lines indicate
-  the control triangle and control points in this and the following figures.}
+  \caption{Projection of South America and surroundings. In this and the
+  following figures, red dots indicate the control points.}
   \label{fig:proj}
 \end{figure}
 
@@ -478,7 +483,8 @@ MTP introduces slightly more non-conformal distortion near the control points.
 \begin{figure}
   \includegraphics[width=\textwidth]{South_America_Wall_Map_omega}
   \caption{Maximum angular deformation $\omega$, in degrees. Blue dashed lines
-  indicate where the two projections have equal $\omega$ values.}
+  indicate where the two projections have equal $\omega$ values. The white
+  $+$ symbol indicates where $\omega$ attains the minimum value of 0°.}
   \label{fig:angle}
 \end{figure}
 
@@ -492,42 +498,47 @@ are near 0 and some regions near the boundary of the map.
 
 \begin{figure}
   \includegraphics[width=\textwidth]{South_America_Wall_Map_distance}
-  \caption{Total distance deviation $D$. Blue dashed lines
-  indicate where the two projections have equal $D$ values.}
+  \caption{Total distance deviation $D$. Blue dashed lines indicate where the
+  two projections have equal $D$ values. The black $+$ symbol indicates where
+  $D$ attains a local maximum of 147 meters.}
   \label{fig:distance}
 \end{figure}
 
 Figure \ref{fig:distance} depicts contour lines of $D$ for these two
 projections. Both projections have a local minimum of 0 at the control points,
 which follows from the geometric construction. Both have a local maximum inside
-the control triangle. $D$ for the MTP is low along the control
-triangle edges, while for the CTP it is larger. $D$ is
-lower for MTP than CTP in a region including the control triangle and
-nearly all of South America, except for a small region near the shared maximum.
-It is also lower in some regions extending outward from the control points.
+the control triangle. $D$ for the MTP is low along the control triangle edges,
+while for the CTP it is larger. $D$ is lower for MTP than CTP in a region
+including the control triangle and nearly all of South America, except for a
+small region near the shared maximum. It is also lower along the lines extending
+out along the edges of the control triangle. $D$ does increase more rapidly for
+the MTP than the CTP in the other regions outside the triangle as one moves away
+from the control triangle.
 
 \begin{figure}
   \includegraphics[width=\textwidth]{South_America_Wall_Map_scale}
-  \caption{Areal scale factor $s$.}
+  \caption{Areal scale factor $s$. The white $+$ symbol indicates where
+  $s$ attains a local minimum: 0.974 for CTP and 1.022 for MTP.}
   \label{fig:scale}
 \end{figure}
 
 Contour lines of $s$ are shown in Figure \ref{fig:scale}.
 The contour lines have the same elliptical structure in both projections,
-centered on a point where $s$ reaches a local minimum.
-This point is different for each projection, which influences
-the differences in aggregate area distortion in Figure \ref{fig:scalep}.
-That minimum value of $s$ is different for each projection.
+centered on a point where $s$ reaches a local minimum. This point, and the
+minimum value there, is different for each projection. That influences the
+differences in aggregate area distortion in Figure \ref{fig:scalep}. The
+spherical control triangle is projected to a slightly different shape for each
+projection, which influences the unscaled values of $s$ as well.
 
 In most practical applications the area pictured in these figures will be
 sufficient, but we can state trends as both projections extend outward from the
 control triangle, outside the area shown in these figures. $\omega$ increases to
 180° at the projection boundary, and increases further in the overlap region,
-representing the inversion there. $D$ increases in general away from the center,
-but for the MTP $D$ remains low on the great circles
-containing the control triangle edges. $s$ is bounded for the entire sphere: it
-increases to a maximum and then decreases to 0 at the projection boundary. If
-continued into the overlap region, $s$ reaches a negative minimum value.
+representing the inversion there. $D$ generally increases away from the center,
+but for the MTP $D$ remains low on the control triangle edges.
+$s$ is bounded for the entire sphere:
+it increases to a maximum and then decreases to 0 at the projection boundary.
+In the overlap region, $s$ becomes negative and reaches a minimum value.
 
 \begin{table}
 \begin{tabular}{ l r r}
@@ -561,7 +572,10 @@ projection (MTP), and demonstrated that it is a suitable alternative to the
 Chamberlin trimetric projection (CTP). In general, the differences between the
 results of the CTP and MTP are small. The MTP has the advantage if an inverse
 is needed, if one wishes to reduce the distance distortion described earlier,
-or if processing time is a concern.
+or if processing time is a concern. The CTP is useful for creating maps of
+continents with low levels of various types of distortion,
+but is uncommon in contemporary cartography:
+the advantages of the MTP may open it up to new uses.
 
 The forward formula for the MTP is given in Equations
 \ref{eq:forward}--\ref{eq:forwardt}. Equation \ref{eq:forward} is a simple
@@ -569,9 +583,9 @@ product of a matrix and a vector. The vector depends on the point being
 transformed. The matrix calculated by the latter two equations depends only on
 the control points, so can be calculated once and reused. Measuring points
 transformed per unit time, the MTP is about twice as fast as the CTP. Of
-course, details of the implementation contribute to the time it takes, but
-PROJ's implementation of the CTP does not have any obvious inefficiencies
-and has changed little in more than two decades.
+course, details of the software influence the speed comparison, but
+PROJ's implementation of the CTP is itself fairly short, does not have any
+obvious inefficiencies, and has changed little in more than two decades.
 
 The inverse formula for the MTP is calculated by Equations
 \ref{eq:inverse}--\ref{eq:inverser} and a single-variable Newton's method
@@ -584,35 +598,46 @@ a two-variable function, which are slow and often unstable.
 
 Figures \ref{fig:omegap}--\ref{fig:scalep} plot aggregate measures of distortion
 within each of the listed control triangles. The CTP outperforms the MTP in
-terms of angular distortion and (except in
-one case) scale distortion, but the reverse is true for distance distortion. For
-both projections, distortion tends to be larger for a larger control triangle.
+terms of angular distortion and (except in one case) scale distortion, but the
+reverse is true for distance distortion. In most cases, the differences between
+the two are small in absolute terms. For both projections, distortion tends to
+be larger for a larger control triangle.
 Figures \ref{fig:proj}--\ref{fig:distance} show the projections applied to
 South America, demonstrating the shape of distortions across the mapped area.
-Differences between the two projections in Figure \ref{fig:proj} are difficult
-to see with the eye.
+Differences between the two projections in Figure \ref{fig:proj}
+are difficult to notice visually.
 
 The same control points were used for both projections in this work, but the
 optimal placement of control points may be somewhat different for the
-application of different projections to the same geographic feature.
-The angular distortion of the MTP is lower
-in a region extending through the middle of the control triangle edges,
-so one may wish to orient the triangle to take advantage of that.
+application of different projections to the same geographic feature. The
+angular distortion of the MTP is lower in a region extending through the middle
+of the control triangle edges, so one may wish to orient the triangle to take
+advantage of that. One may also wish to avoid the area outside the triangle
+where $D$ increases more rapidly for the MTP than the CTP.
 
 The form of the MTP's forward formula suggests a possible family of projections
 that are simple functions of distances to control points, such as a polynomial
 function. Additionally, there may exist similar projections using measurements
 other than distance, such as area.
 
+\section{Data availability statement}
 A software implementation of the MTP, as well as code used to
 produce the calculations and figures in this text,
-is available on the author's Github site. \citep{trimetric}
+%is available on the author's Github site. \citep{trimetric}
+is available at the private link https://figshare.com/s/d2f92fa8ae678cdd382c.
+On acceptance this link will be replaced with an openly accessible site,
+subject to Creative Commons license.
 
-\section{Acknowledgements}
 Figures in this text were created using the Python packages matplotlib
 \citep{matplotlib} and GeoPandas \citep{geopandas}, and their dependencies
 including PROJ \citep{proj} and PyProj \citep{pyproj} as referenced earlier.
 Land mass shape data come from \citet{natearth}.
+
+%\section{Funding}
+%None.
+
+%\section{Disclosure statement}
+%The author declares no potential competing interest.
 
 \bibliographystyle{apacite}
 \bibliography{references}
