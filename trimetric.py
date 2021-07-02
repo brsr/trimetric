@@ -587,7 +587,7 @@ cham_avgd = aorder.join(pdtablenoh.xs('Chamberlin', level=1))['avgld']
 matrix_avgd = aorder.join(pdtablenoh.xs('Matrix', level=1))['avgld']
 cham_sr = aorder.join(pdtablenoh.xs('Chamberlin', level=1))['scalerat']
 matrix_sr = aorder.join(pdtablenoh.xs('Matrix', level=1))['scalerat']
-labels = aorder.index
+labels = [x.replace('_', ' ') for x in aorder.index]
 ticks = np.arange(len(labels))
 #%%
 cptablefmt = cptable.copy()
@@ -733,8 +733,8 @@ ax.annotate("$p_2$", tgtpts[:, 1], xytext=(5, -5), ha='left',
             textcoords="offset points")
 ax.annotate("$p_3$", tgtpts[:, 2], xytext=(5, -5), ha='left',
             textcoords="offset points")
-ax.annotate("$p$", (ctpt[0], ctpt[1]), xytext=(0, 10),
-            ha='left', textcoords="offset points")
+ax.annotate("$p$", (ctpt[0], ctpt[1]), xytext=(2, -4),
+            ha='left', va='top', textcoords="offset points")
 ax.set_title('b')
 
 # figure out how to inset this later? nah
@@ -752,8 +752,8 @@ ax.set_aspect('equal', 'box')
 #ax.set_ylim(ctpt[1] -500, ctpt[1]+500)
 ax.set_xlim(-750, -580)
 ax.set_ylim(1550, 1700)
-ax.annotate("$p_\ell$", (ltpt[0], ltpt[1]), xytext=(0, 8),
-            ha='right', textcoords="offset points")
+ax.annotate("$p_\ell$", (ltpt[0], ltpt[1]), xytext=(-4, -4),
+            ha='right', va='top', textcoords="offset points")
 ax.annotate("$p_c$", (ctpt[0], ctpt[1]), xytext=(5, 0),
             ha='left', textcoords="offset points")
 ax.set_title('c')
